@@ -8,11 +8,24 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      colors: {
+        navyBlue: {
+          "0": "#003366",
+          "1": "#3874AF"
+        },
+        myNeutral: {
+          softGrey: "#F5F5F5",
+          charcoalGrey: "#333333",
+          white: "#FFFFFF"
+        }
       },
+      fontFamily: {
+        display: "Playfair Display, serif",
+        heading: "Roboto Slab, serif",
+        body: "Open Sans, sans-serif",
+        label: "Lato, sans-serif",
+        code: "Fira Code, monospace"
+      }
     },
   },
   plugins: [],
