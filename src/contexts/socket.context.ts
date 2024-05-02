@@ -1,4 +1,7 @@
 import { createContext } from "react";
+import { io } from "socket.io-client";
+
+export const createSocket = () => io({ autoConnect: false });
 
 export type SocketWriteMode = "writing" | "translating";
 

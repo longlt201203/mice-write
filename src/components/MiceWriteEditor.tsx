@@ -9,16 +9,30 @@ import Loader from './Loader';
 import Button from './Button';
 import langs from '@/etc/langs';
 import DisplayOnlyEditor from './DisplayOnlyEditor';
+import { useAppSelector } from '@/redux/store';
+import { socketCurrentTextChunkSelector, socketModeSelector } from '@/redux/socket.reducer';
 
 interface MiceWriteEditorProps {
 }
 
 export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
-    const { isLocked, currentText, setCurrentText } = useMiceWriteEditor();
+    const { currentText, setCurrentText } = useMiceWriteEditor();
+    const [isLocked, setIsLocked] = useState(false);
     const [editorState, setEditorState] = useState<EditorState>();
     const [langCode, setLangCode] = useState<string>(langs[0].id);
-
     const { callForHelp, translate } = useSocket();
+    const [displayText, setDisplayText] = useState<string>("");
+
+    const socketCurrentTextChunk = useAppSelector(socketCurrentTextChunkSelector);
+    const socketMode = useAppSelector(socketModeSelector);
+
+    useEffect(() => {
+        if (socketMode == "idle") {
+            setIsLocked(false);
+        } else {
+            setIsLocked(true);
+        }
+    }, [socketMode]);
 
     const handleHelpMe = () => {
         if (!isLocked) callForHelp();
@@ -35,11 +49,29 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
         }
     }, [currentText]);
 
+    useEffect(() => {
+        switch (socketMode) {
+            case "suggesting": {
+                setCurrentText((prev) => prev + socketCurrentTextChunk);
+                break;
+            }
+            case "translating": {
+                setDisplayText((prev) => prev + socketCurrentTextChunk);
+                break;
+            }
+        }
+    }, [socketCurrentTextChunk]);
+
     const handleOnChange = (editorState: EditorState) => {
         if (!isLocked) {
             setCurrentText(editorState.getCurrentContent().getPlainText());
             setEditorState(editorState);
         }
+    }
+
+    const handleTranslate = () => {
+        setDisplayText("");
+        translate(langCode);
     }
 
     return (
@@ -49,7 +81,7 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
                     <div className="flex flex-row gap-x-1">
                         <Button disabled={isLocked} onClick={handleHelpMe}>{isLocked && <Loader />}Help Me!</Button>
                         <div className='flex flex-row gap-x-1'>
-                            <Button disabled={isLocked} onClick={() => translate(langCode)}>{isLocked && <Loader />}Translate To</Button>
+                            <Button disabled={isLocked} onClick={() => handleTranslate()}>{isLocked && <Loader />}Translate To</Button>
                             <select className='border rounded' value={langCode} onChange={(e) => setLangCode(e.target.value)}>
                                 {langs.map((lang) => (
                                     <option key={lang.id} value={lang.id}>{lang.name}</option>
@@ -60,7 +92,7 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
                     <div className='p-1 border rounded'>
                         <Editor editorState={editorState} onChange={handleOnChange} />
                     </div>
-                    <DisplayOnlyEditor/>
+                    <DisplayOnlyEditor text={displayText} />
                 </div>
             )}
         </>

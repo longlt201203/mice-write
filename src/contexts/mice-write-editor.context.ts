@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, createContext } from "react";
 
-
 export interface MiceWriteEditorContextProps {
     currentText: string;
     setCurrentText: Dispatch<SetStateAction<string>>;

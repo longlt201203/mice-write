@@ -1,3 +1,5 @@
+"use client"
+
 import MiceWriteEditorContext from "@/contexts/mice-write-editor.context";
 import { PropsWithChildren, useState } from "react";
 
