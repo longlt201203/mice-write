@@ -1,4 +1,4 @@
-import { TextSuggestionStreamParams, TranslateTextParams } from "../etc/dto";
+import { TextSuggestionStreamParams, TextToSpeechParams, TranslateTextParams } from "../etc/dto";
 import langs from "../etc/langs";
 import OpenAI from "openai";
 
@@ -62,5 +62,16 @@ export default class AIService {
         }
         
         onEnd();
+    }
+
+    async createTextToSpeech(params: TextToSpeechParams) {
+        const response = await this.openai.audio.speech.create({
+            input: params.text,
+            model: "tts-1",
+            voice: "nova",
+            response_format: "mp3",
+        });
+        // const mp3Buffer = Buffer.from(await response.arrayBuffer());
+        return await response.arrayBuffer();
     }
 }

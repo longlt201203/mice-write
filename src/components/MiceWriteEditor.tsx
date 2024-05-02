@@ -4,7 +4,7 @@ import useMiceWriteEditor from '@/hooks/useMiceWriteEditor';
 import useSocket from '@/hooks/useSocket';
 import { ContentState, Editor, EditorState } from 'draft-js';
 import 'draft-js/dist/Draft.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Loader from './Loader';
 import Button from './Button';
 import langs from '@/etc/langs';
@@ -22,6 +22,8 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
     const [langCode, setLangCode] = useState<string>(langs[0].id);
     const { callForHelp, translate } = useSocket();
     const [displayText, setDisplayText] = useState<string>("");
+    const [audioSrc, setAudioSrc] = useState<string>();
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     const socketCurrentTextChunk = useAppSelector(socketCurrentTextChunkSelector);
     const socketMode = useAppSelector(socketModeSelector);
@@ -74,6 +76,20 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
         translate(langCode);
     }
 
+    const handleTextToSpeech = async () => {
+        setIsLocked(true);
+        const res = await fetch("/api/ai/text-to-speech", {
+            method: "POST",
+            body: JSON.stringify({ text: currentText }),
+        });
+        const audioSrc = URL.createObjectURL(new Blob([await res.arrayBuffer()]));
+        if (audioRef.current) {
+            audioRef.current.src = audioSrc;
+            audioRef.current.play();
+        }
+        setIsLocked(false);
+    }
+
     return (
         <>
             {editorState && (
@@ -88,6 +104,8 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
                                 ))}
                             </select>
                         </div>
+                        <Button disabled={isLocked} onClick={handleTextToSpeech}>{isLocked && <Loader />}Text To Speech</Button>
+                        <audio ref={audioRef}></audio>
                     </div>
                     <div className='p-1 border rounded'>
                         <Editor editorState={editorState} onChange={handleOnChange} />
