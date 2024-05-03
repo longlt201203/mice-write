@@ -1,4 +1,4 @@
-import { TextSuggestionStreamParams, TextToSpeechParams, TranslateTextParams } from "../etc/dto";
+import { GenerateImageParams, TextSuggestionStreamParams, TextToSpeechParams, TranslateTextParams } from "../etc/dto";
 import langs from "../etc/langs";
 import OpenAI from "openai";
 
@@ -73,5 +73,15 @@ export default class AIService {
         });
         // const mp3Buffer = Buffer.from(await response.arrayBuffer());
         return await response.arrayBuffer();
+    }
+
+    async createImage(params: GenerateImageParams) {
+        const response = await this.openai.images.generate({
+            model: "dall-e-3",
+            prompt: params.prompt,
+            n: 1,
+            size: "1024x1024",
+        });
+        return response.data[0].url;
     }
 }

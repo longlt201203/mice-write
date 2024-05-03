@@ -24,6 +24,7 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
     const [displayText, setDisplayText] = useState<string>("");
     // const [audioSrc, setAudioSrc] = useState<string>();
     const audioRef = useRef<HTMLAudioElement>(null);
+    const [imageUrl, setImageUrl] = useState<string>();
 
     const socketCurrentTextChunk = useAppSelector(socketCurrentTextChunkSelector);
     const socketMode = useAppSelector(socketModeSelector);
@@ -90,6 +91,17 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
         setIsLocked(false);
     }
 
+    const handleGenerateImage = async () => {
+        setIsLocked(true);
+        const res = await fetch("/api/ai/generate-image", {
+            method: "POST",
+            body: JSON.stringify({ prompt: currentText }),
+        });
+        const { url } = await res.json();
+        setImageUrl(url);
+        setIsLocked(false);
+    }
+
     return (
         <>
             {editorState && (
@@ -105,7 +117,11 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
                             </select>
                         </div>
                         <Button disabled={isLocked} onClick={handleTextToSpeech}>{isLocked && <Loader />}Text To Speech</Button>
+                        <Button disabled={isLocked} onClick={handleGenerateImage}>{isLocked && <Loader />}Generate Image</Button>
                         <audio ref={audioRef}></audio>
+                    </div>
+                    <div className='flex'>
+                        <img src={imageUrl} alt="" className='w-1/4' />
                     </div>
                     <div className='p-1 border rounded'>
                         <Editor editorState={editorState} onChange={handleOnChange} />
