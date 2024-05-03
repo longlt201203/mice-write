@@ -22,7 +22,7 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
     const [langCode, setLangCode] = useState<string>(langs[0].id);
     const { callForHelp, translate } = useSocket();
     const [displayText, setDisplayText] = useState<string>("");
-    const [audioSrc, setAudioSrc] = useState<string>();
+    // const [audioSrc, setAudioSrc] = useState<string>();
     const audioRef = useRef<HTMLAudioElement>(null);
 
     const socketCurrentTextChunk = useAppSelector(socketCurrentTextChunkSelector);
@@ -114,6 +114,5 @@ export default function MiceWriteEditor({ }: MiceWriteEditorProps) {
                 </div>
             )}
         </>
-
     );
 }

@@ -7,7 +7,7 @@ import { TextSuggestionStreamParams, TranslateTextParams } from "@/etc/dto";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
-const port = 9402;
+const port = parseInt(process.env.LISTEN_PORT || "3000");
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
